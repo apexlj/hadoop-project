@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:hdp="http://www.springframework.org/schema/hadoop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
+
+    <hdp:configuration>
+        <!--fs.defaultFS=${hd.fs}-->
+    </hdp:configuration>
+    
+    <hdp:job id="testGPS" input-format="org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat"
+             input-path="${input.path}" output-path="${output.path}" grouping-comparator="com.sq.historyTrackMapreduce.comparator.GroupingComparator"
+             mapper="com.sq.historyTrackMapreduce.mapper.GPSDataMapper" reducer="com.sq.historyTrackMapreduce.reducer.GPSDataReducer" scope="prototype"/>
+
+    <hdp:job-runner id="testGPSRunner" run-at-startup="false"
+                job-ref="testGPS" wait-for-completion="true" pre-action="setupScript"/>
+
+    <hdp:script id="setupScript" location="setup.groovy">
+        <hdp:property name="outputDir" value="${output.path}"/>
+    </hdp:script>
+
+    <context:property-placeholder location="classpath:application.properties" />
+</beans>
